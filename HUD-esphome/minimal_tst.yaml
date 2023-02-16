@@ -1,0 +1,73 @@
+
+#made by swedude
+esphome:
+  name: max7219-clock_hud
+  platform: ESP8266
+  board: esp01_1m
+
+
+wifi:
+  output_power: 12 #10-20
+  power_save_mode: HIGH #HIGH NONE LIGHT
+  fast_connect: true 
+  ssid: "xxxxxx"
+  password: "xxxxxx"
+
+
+  
+# Enable logging
+logger:
+  baud_rate: 0 
+
+# Enable Home Assistant API
+api:
+
+ota:
+    safe_mode: True
+    
+
+external_components:
+  - source:
+      type: local
+      path: my_components
+    
+time:
+  - platform: sntp
+    id: sntp_time    
+    
+
+spi:
+  clk_pin: 3
+  mosi_pin: 0
+
+
+#this is rotated and inverted and all sort of things to work on the display i have.(blue one with 4x(8x8) matrix cheapest one on aliexpress...)
+display:
+  - platform: max7219digit
+    cs_pin: 1
+    num_chips: 4
+    intensity: 3
+    rotate_chip: 180
+    scroll_speed: 100ms
+    scroll_delay: 0s     
+    update_interval: 1000ms
+    lambda: |-
+      static int i = 0;
+      i++;               
+      it.strftimedigit("%H%M", id(sntp_time).now());      
+      if ((i % 2) == 0)
+      {
+      it.line(8,6,8,6);
+      it.line(8,2,8,2);
+      
+      it.line(23,6,23,6);
+      it.line(23,2,23,2);
+      }              
+      it.line(8,5,8,5);
+      it.line(8,3,8,3);    
+      
+      it.line(23,5,23,5);
+      it.line(23,3,23,3); 
+   
+    
+    
